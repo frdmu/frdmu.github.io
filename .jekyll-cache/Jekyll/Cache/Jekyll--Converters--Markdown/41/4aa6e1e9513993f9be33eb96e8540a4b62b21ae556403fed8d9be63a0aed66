@@ -1,0 +1,60 @@
+I"�<h1 id="architecture">Architecture</h1>
+<p>  A GFS cluster consists of a single master and multiple chunkservers and is accessed by multiple clients, as shown in Figure 1.
+<img src="/images/posts/fig1.jpg" alt="" /></p>
+<h2 id="1-single-master">1. Single Master</h2>
+<p>  Having a single master enables the master to make sophisticated chunk placement and replication decisions using global knowledge.</p>
+<h2 id="2-chunk-size">2. Chunk Size</h2>
+<p>  Chunk size is one of the key design parameters. It has been chosen 64 MB, which is much larger than typical file system block sizes. Each chunk replica is stored as a plain Linux file on a chunkserver and is extended only as needed.</p>
+<h2 id="3-metadata">3. Metadata</h2>
+<p>  The master stores three major types of metadata:</p>
+<ul>
+  <li>the file and chunk namespaces</li>
+  <li>the mapping from files to chunks</li>
+  <li>the locations of each chunk’s replicas</li>
+</ul>
+
+<p>  All metadata is kept in the master’s memory.</p>
+
+<p>  The first two types (namespaces and file-to-chunk mapping) are also kept persistent by logging mutations to an operation log stored on the master’s local disk and replicated on remote machines.</p>
+
+<p>  But the master does not store chunk location information persistently.</p>
+<h3 id="31-in-memory-data-structures">3.1 In-Memory Data Structures</h3>
+<p>  The master maintains less than 64 bytes of metadata for each 64 MB chunk.</p>
+<h3 id="32-chunk-locations">3.2 Chunk Locations</h3>
+<p>  The master does not keep a persistent record of which chunkservers have a replica of a given chunk.It simply polls chunkservers for that information at startup. The master can keep itself up-to-date thereafter because it controls all chunk placement and monitors chunkserver status with regular HeartBeat messages.</p>
+<h3 id="33-operation-log">3.3 Operation Log</h3>
+<p>  The operation log contains a historical record of critical metadata changes.</p>
+
+<p>  We replicate it on multiple remote machines and respond to a client operation only after flushing the corresponding log record to disk both locally and remotely.</p>
+
+<p>  The master recovers its file system state by replaying the operation log.To minimize startup time, we must keep the log small. The master checkpoints its state whenever the log grows beyond a certain size so that it can recover by loading the latest checkpoint from local disk and replaying only the limited number of log records after that.The checkpoint is in a compact B-tree like form that can be directly mapped into memory and used for namespace lookup without extra parsing.</p>
+<h2 id="4-consistency-model">4. Consistency Model</h2>
+<p>  GFS has a relaxed consistency model that supports highly distributed applications well but remains relatively simple and efficient to implement.</p>
+
+<h1 id="system-interactions">System Interactions</h1>
+<p>  We now describe how the client, master, and chunkservers interact to implement data mutations, atomic record append, and snapshot.</p>
+<h2 id="1-leases-and-mutation-order">1. Leases and Mutation Order</h2>
+<p>  A mutation is an operation that changes the contents or metadata of a chunk such as a write or an append operation. Each mutation is performed at all the chunk’s replicas.We use leases to maintain a consistent mutation order across replicas.The master grants a chunk lease to one of the replicas, which we call the primary.The primary picks a serial order for all mutations to the chunk.All replicas follow this order when applying mutations.Thus, the global mutation order is defined first by the lease grant order chosen by the master, and within a lease by the serial numbers assigned by the primary.</p>
+
+<p>  In Figure 2, we illustrate this process by following the control flow of a write through these numbered steps.
+<img src="/images/posts/fig2.jpg" alt="" /></p>
+<ul>
+  <li>1.The client asks the master which chunkserver holds the current lease for the chunk and the locations of the other replicas. If no one has a lease, the master grants one to a replica it chooses (not shown).</li>
+  <li>2.The master replies with the identity of the primary and the locations of the other (secondary) replicas. The client caches this data for future mutations. It needs to contact the master again only when the primary becomes unreachable or replies that it no longer holds a lease.</li>
+  <li>3.The client pushes the data to all the replicas. A client can do so in any order. Each chunkserver will store the data in an internal LRU buffer cache until the data is used or aged out.</li>
+  <li>4.Once all the replicas have acknowledged receiving the data, the client sends a write request to the primary. The request identifies the data pushed earlier to all of the replicas. The primary assigns consecutive serial numbers to all the mutations it receives, possibly from multiple clients, which provides the necessary serialization. It applies the mutation to its own local state in serial number order.</li>
+  <li>5.The primary forwards the write request to all secondary replicas. Each secondary replica applies mutations in the same serial number order assigned by the primary.</li>
+  <li>6.The secondaries all reply to the primary indicating that they have completed the operation.</li>
+  <li>7.The primary replies to the client. If there are any errors, client code will handle them.</li>
+</ul>
+
+<h2 id="2-data-flow">2. Data Flow</h2>
+<p>  To fully utilize each machine’s network bandwidth, the data is pushed linearly along a chain of chunkservers rather than distributed in some other topology (e.g., tree).</p>
+<h2 id="3-atomic-record-appends">3. Atomic Record Appends</h2>
+<p>  GFS provides an atomic append operation called record append. In a traditional write, the client specifies the offset at which data is to be written. Concurrent writes to the same region are not serializable: the region may end up containing data fragments from multiple clients. In a record append, however, the client specifies only the data. GFS appends it to the file at least once atomically (i.e., as one continuous sequence of bytes) at an offset of GFS’s choosing and returns that offset to the client.</p>
+<h2 id="4-snapshot">4. Snapshot</h2>
+<p>  The snapshot operation makes a copy of a file or a directory tree (the “source”) almost instantaneously, while minimizing any interruptions of ongoing mutations.</p>
+
+<p><u>Reference:</u>
+<a href="https://pdos.csail.mit.edu/6.824/papers/gfs.pdf">Google File System</a></p>
+:ET

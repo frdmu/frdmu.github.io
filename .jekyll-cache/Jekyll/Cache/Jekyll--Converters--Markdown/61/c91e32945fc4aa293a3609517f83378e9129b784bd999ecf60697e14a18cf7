@@ -1,0 +1,6 @@
+I"'<h1 id="introduction">Introduction</h1>
+<p>  Raft is a consensus algorithm for managing a replicated log. Consensus algorithms allow a collection of machines to work as a coherent group that can survive the failures of some of its members.</p>
+<h1 id="replicated-state-machines">Replicated state machines</h1>
+<p>  Consensus algorithms typically arise in the context of replicated state machines. Replicated state machines are typically implemented using a replicated log, as shown in Figure 1.
+<img src="/images/posts/fig1.png" alt="" /></p>
+:ET

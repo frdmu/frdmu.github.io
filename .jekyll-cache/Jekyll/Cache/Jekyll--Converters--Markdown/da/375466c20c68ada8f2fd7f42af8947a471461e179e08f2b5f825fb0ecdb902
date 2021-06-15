@@ -1,0 +1,15 @@
+I"�<h1 id="architecture">Architecture</h1>
+<p>  A GFS cluster consists of a single master and multiple chunkservers and is accessed by multiple clients, as shown in Figure 1.
+<img src="/images/posts/fig1.jpg" alt="" /></p>
+<h2 id="1-single-master">1. Single Master</h2>
+<p>  Having a single master enables the master to make sophisticated chunk placement and replication decisions using global knowledge.</p>
+<h2 id="2-chunk-size">2. Chunk Size</h2>
+<p>  Chunk size is one of the key design parameters. It has been chosen 64 MB, which is much larger than typical file system block sizes. Each chunk replica is stored as a plain Linux file on a chunkserver and is extended only as needed.</p>
+<h2 id="3-metadata">3. Metadata</h2>
+<p>  The master stores three major types of metadata:</p>
+<ul>
+  <li>the file and chunk namespaces</li>
+  <li>the mapping from files to chunks</li>
+  <li>the locations of each chunk’s replicas</li>
+</ul>
+:ET
