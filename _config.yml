@@ -21,8 +21,8 @@ comment:
       owner: frdmu 
       repo: gitment_comment 
       oauth: 
-        client_id: 8aea56274275b240cb55 
-        client_secret: 72280b8a7810639f738b2bca3e27c660f15a0d7d 
+        client_id: 890a45788bea48108f45 
+        client_secret: b08f4b14ce0e6c8f628ae98480d2718feeac7b81 
       lazy: true
 # Social
 social:
