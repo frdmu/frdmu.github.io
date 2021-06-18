@@ -16,14 +16,14 @@ comment:
     # livere: MTAyMC81MDk5NC8yNzQ3Ng  # https://www.livere.com
     # disqus: leopard
     # uyan: 2143225  # 有言id,登录有言官网申请
-    gitment:
+    valine:
       enable: true
-      owner: frdmu 
-      repo: gitment_comment 
-      oauth: 
-        client_id: 890a45788bea48108f45 
-        client_secret: b08f4b14ce0e6c8f628ae98480d2718feeac7b81 
-      lazy: true
+      appid: KoodkK2gjgYunIXlYrseMCYx-gzGzoHsz 
+      appkey: HaoeaLEembya7LwsTfut8V6y
+      placeholder: ヾﾉ≧∀≦)o来啊，giao一个! 
+      guest_info: nick
+      pageSize: 10
+      avatar: robohash
 # Social
 social:
     # weibo: 5366874726 
