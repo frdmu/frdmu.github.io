@@ -2,7 +2,7 @@
 layout: page
 title: 技术支持 
 ---
-I am a rookie!
+桃花飞绿水，一庭芳草围新绿，有情芍药含春泪。
 
-{% include comments.html %}
+野竹上表霄，十亩藤花落古香，无力蔷薇卧晓枝。
 

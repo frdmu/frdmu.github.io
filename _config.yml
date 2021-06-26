@@ -3,7 +3,7 @@ title: frdmu
 subtitle: 个人站
 description: 欢迎来到我的个人站~
 # 头像里面的标题
-avatarTitle: giao~ 
+avatarTitle: system developer 
 # 头像里面的描述
 #avatarDesc:  
 url: "https://frdmu.github.io"
@@ -20,7 +20,7 @@ comment:
       enable: true
       appid: KoodkK2gjgYunIXlYrseMCYx-gzGzoHsz 
       appkey: HaoeaLEembya7LwsTfut8V6y
-      placeholder: ヾﾉ≧∀≦)o来啊，giao一个! 
+      placeholder: 留言 
       guest_info: nick
       pageSize: 10
       avatar: robohash
